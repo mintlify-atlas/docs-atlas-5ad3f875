@@ -1,0 +1,65 @@
+---
+title: "ink search — Find Notes by Keyword"
+sidebarTitle: "search"
+description: "ink search <keyword> performs case-insensitive full-text search across note titles, content, and tags, with matching terms highlighted."
+---
+
+`ink search` scans all notes and returns those whose title, content, or tags contain the given keyword (case-insensitive). Matching results are displayed in a Rich table titled **Search Results** with a cyan border, and the keyword is highlighted in bold black on a bright-yellow background wherever it appears in the title or content preview.
+
+## Synopsis
+
+```bash
+ink search <keyword>
+```
+
+## Arguments
+
+<ParamField path="keyword" type="string" required>
+  The search term to look for. Matching is case-insensitive and applied independently against the note's title, full content body, and each individual tag string.
+</ParamField>
+
+## Search Behavior
+
+The matching logic works as follows:
+
+1. The keyword is converted to lowercase.
+2. For each note in the database, Ink Notes checks:
+   - Whether the keyword appears anywhere in `note.title.lower()` (using Python's `in` operator).
+   - Whether the keyword appears anywhere in `note.content.lower()`.
+   - Whether the keyword appears in **any individual tag** within the note's tag list, checked as `keyword in tag.lower()` for each tag independently.
+3. A note is included in the results if **any** of the three checks above is `True`.
+
+Because the check uses `in` (substring matching), partial keywords will also match — for example, searching for `py` will match notes titled `Python tips` or tagged `python`.
+
+## Output
+
+Matching notes are displayed in a three-column Rich table:
+
+| Column  | Style                              | Description                                           |
+| ------- | ---------------------------------- | ----------------------------------------------------- |
+| ID      | yellow                             | The note's integer ID                                 |
+| Title   | bright white, keywords highlighted | Full note title; matched terms shown in bold yellow   |
+| Preview | white, keywords highlighted        | First 80 characters of content followed by `...`; matched terms shown in bold yellow |
+
+If no notes match the keyword, Ink Notes prints:
+
+```
+✗ No matching notes found.
+```
+
+## Examples
+
+```bash
+# Find notes mentioning "python"
+ink search "python"
+
+# Find notes by tag
+ink search "devops"
+
+# Find notes by partial content
+ink search "checklist"
+```
+
+<Tip>
+  Search matches anywhere within a field — searching for `py` will match `python`, `pyproject`, or any tag that contains those characters. Use a more specific keyword if you get too many results.
+</Tip>

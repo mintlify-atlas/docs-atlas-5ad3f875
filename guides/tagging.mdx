@@ -1,0 +1,72 @@
+---
+title: "Organize Notes with Tags in Ink Notes"
+sidebarTitle: "Tagging"
+description: "Use comma-separated tags to categorize Ink Notes notes. Learn how to add, update, and search by tags with practical examples."
+---
+
+Tags are an optional but powerful way to categorize notes in Ink Notes. Every note accepts a comma-separated list of tags stored as a JSON array in SQLite, letting you group, filter, and retrieve related notes with `ink search`.
+
+## Adding tags when creating a note
+
+Pass a comma-separated string to the `--tags` option when running `ink add`. Internally, the `parse_tags` function splits the value on `,` and strips leading and trailing whitespace from each token before storing the result as a JSON array.
+
+```bash
+ink add "Kubernetes cheatsheet" --content "kubectl get pods -n <namespace>" --tags "devops,k8s,cheatsheet"
+```
+
+Resulting tags stored in SQLite:
+
+```
+["devops", "k8s", "cheatsheet"]
+```
+
+## Viewing tags
+
+`ink lst` renders all notes in a table that includes a **Tags** column. Multiple tags are displayed comma-joined in that column. To inspect a single note in detail, run `ink view <id>` — the Tags field appears in the note panel, showing the full list.
+
+## Searching by tag
+
+`ink search` checks title, content, and every individual tag value. The search is case-insensitive: the keyword is lowercased before being compared against each tag string.
+
+```bash
+ink search "k8s"
+# returns the note above
+```
+
+<Tip>
+  Partial matches work — `ink search "dev"` will match a note tagged `devops` because the search checks whether the keyword appears anywhere within each tag string.
+</Tip>
+
+## Updating tags
+
+Use `ink update <id> --tags <new_csv>` to change the tags on an existing note.
+
+<Warning>
+  The `--tags` flag **replaces** the full tag list. There is no append mode — pass all desired tags together in a single comma-separated value or the omitted tags will be lost.
+</Warning>
+
+```bash
+# Replace tags entirely
+ink update 1 --tags "devops,k8s,cheatsheet,urgent"
+```
+
+## Removing all tags
+
+There is no dedicated remove-tag command. To clear all tags you might instinctively pass an empty string:
+
+```bash
+ink update 1 --tags ""
+```
+
+However, `parse_tags` returns `None` when the input is falsy, and `NoteUpdate` excludes `None` fields via `model_dump(exclude_none=True)` — meaning passing `--tags ""` leaves the existing tags unchanged rather than clearing them.
+
+If you need a truly empty tag list, pass a single space as the value (`--tags " "`). `parse_tags` will split and strip the space, yielding a list containing one empty-string element. Note that Pydantic's `Field(min_length=1)` applies to the **list** length, not to individual item length, so a one-element list passes validation — but the resulting tag will be an empty string, which may look odd in `ink lst`. For a clean slate, the most reliable approach is to delete and re-create the note.
+
+## Tagging conventions
+
+<Accordion title="Recommended tagging practices">
+  - **Use lowercase kebab-case tags** — e.g. `aws-lambda`, `data-model`. Consistent casing makes searches predictable since `ink search` lowercases the keyword before matching.
+  - **Keep tags short and consistent** — prefer `k8s` over `kubernetes-cluster-orchestration`. Shorter tags are easier to remember and less prone to typos across notes.
+  - **Use project names as top-level tags** — e.g. `ink-notes`, `my-api`, `blog`. This gives you a reliable namespace to group all notes belonging to the same project.
+  - **Add action tags for things that need attention** — `urgent` and `todo` are useful transient tags you can search for during a work session, then replace once the task is done.
+</Accordion>

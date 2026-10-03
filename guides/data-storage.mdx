@@ -1,0 +1,89 @@
+---
+title: "How Ink Notes Stores Data Locally"
+sidebarTitle: "Data Storage"
+description: "Ink Notes uses a local SQLite database file. Learn where note.db lives, how to back it up, move it, and understand the notes table schema."
+---
+
+Ink Notes persists all notes in a single SQLite file called `note.db`, located in the root of the directory where Ink Notes is installed (resolved at runtime relative to the `database.py` file). No server, no cloud sync, no account required — your notes stay entirely on your machine.
+
+## Database location
+
+`database.py` sets `BASE_DIR` using:
+
+```python
+BASE_DIR = Path(__file__).resolve().parent.parent
+```
+
+That resolves two levels up from `ink/database.py`, landing at the package root. For a standard `pip install` this is the relevant directory inside your Python environment's `site-packages`. The SQLite connection URL is then:
+
+```
+sqlite:///<BASE_DIR>/note.db
+```
+
+<Info>
+  The exact path depends on your Python environment. Run the following to see the resolved value on your machine:
+
+  ```bash
+  python -c "import ink.database; print(ink.database.DATABASE_URL)"
+  ```
+</Info>
+
+## `notes` table schema
+
+All notes are stored in a single table named `notes`. The columns are defined by the `Note` SQLAlchemy model in `models.py`.
+
+| Column | Type | Constraints |
+|--------|------|-------------|
+| `id` | INTEGER | Primary key, auto-increment, indexed |
+| `title` | VARCHAR(100) | NOT NULL |
+| `content` | TEXT | NOT NULL |
+| `created_at` | DATETIME (UTC) | NOT NULL, set on insert |
+| `updated_at` | DATETIME (UTC) | NOT NULL, set on insert and update |
+| `tags` | JSON | Nullable |
+
+Both `created_at` and `updated_at` are timezone-aware timestamps defaulting to `datetime.now(UTC)`. The `updated_at` column is refreshed automatically via SQLAlchemy's `onupdate` hook whenever a row is modified.
+
+## Backing up your notes
+
+Because `note.db` is a standard SQLite file, any file-level copy creates a valid backup. The simplest approach:
+
+```bash
+cp note.db note.db.backup
+```
+
+For a consistent backup that flushes all pending writes, use the SQLite CLI's built-in backup command:
+
+```bash
+sqlite3 note.db ".backup note.db.backup"
+```
+
+## Exporting notes
+
+You can query `note.db` directly with any SQLite-compatible tool without touching the `ink` CLI. For example, to dump note IDs, titles, and tags:
+
+```bash
+sqlite3 note.db "SELECT id, title, tags FROM notes;"
+```
+
+This is useful for scripting bulk exports or piping note data into other tools.
+
+## Database initialization
+
+Every time the `ink` command is invoked, the `cli.py` entry point calls `init_db()` before handing off to a subcommand:
+
+```python
+def init_db():
+    """Initialize the database by creating all tables."""
+    Base.metadata.create_all(bind=engine)
+
+@click.group()
+def cli() -> None:
+    """A simple CLI note taking application."""
+    init_db()
+```
+
+`Base.metadata.create_all` is a no-op when the table already exists, so there is no performance penalty on subsequent runs. On first use, the `notes` table is created automatically — no manual migration step is required.
+
+<Note>
+  Ink Notes does not currently support multiple databases or database migrations. If the `notes` table schema changes in a future version, you would need to migrate your data manually (e.g. by exporting rows with the SQLite CLI and re-importing them into the updated schema).
+</Note>

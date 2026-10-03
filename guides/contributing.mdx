@@ -1,0 +1,124 @@
+---
+title: "Contributing to Ink Notes"
+sidebarTitle: "Contributing"
+description: "Set up a local development environment, run the test suite with pytest, and submit a pull request for Ink Notes."
+---
+
+Ink Notes is an open-source project under the MIT License. Contributions — bug fixes, new features, and documentation improvements — are welcome via GitHub pull requests. The codebase is small and well-structured, making it straightforward to understand and extend.
+
+## Setting up the dev environment
+
+<Steps>
+  <Step title="Fork and clone the repository">
+    Fork the repo on GitHub, then clone your fork locally:
+
+    ```bash
+    git clone https://github.com/a0x0p/ink.git
+    cd ink-notes
+    ```
+  </Step>
+
+  <Step title="Create and activate a virtual environment">
+    Isolate your development dependencies with a virtual environment:
+
+    ```bash
+    python -m venv .venv
+    source .venv/bin/activate   # Windows: .venv\Scripts\activate
+    ```
+  </Step>
+
+  <Step title="Install dependencies and the package in editable mode">
+    Install all runtime and development dependencies, then install the package itself in editable mode so changes to the source are reflected immediately:
+
+    ```bash
+    pip install -r requirements.txt
+    pip install -e .
+    ```
+
+    `requirements.txt` pins `click>=8.1`, `sqlalchemy>=2.0`, `pydantic>=2.0`, `rich>=15.0`, `pytest>=8.0`, and `setuptools>=82.0`. The `-e .` step registers the `ink` entry point defined in `setup.py`.
+  </Step>
+</Steps>
+
+## Running tests
+
+The test suite uses **pytest** with Click's `CliRunner` for fully isolated, in-process command testing. Each test receives its own temporary SQLite database via the `runner` fixture defined in `tests/conftest.py`. The fixture creates a fresh `test.db` under pytest's `tmp_path`, patches both `database.get_db` and `commands.get_db` to point at that temporary session, and returns a `CliRunner` instance — so no test ever touches the real `note.db`.
+
+```bash
+python -m pytest -v
+```
+
+`tests/test_commands.py` covers the following scenarios:
+
+| Test | What it verifies |
+|------|-----------------|
+| `test_add_note` | Create a note with title, content, and tags |
+| `test_view_note` | View an existing note by ID |
+| `test_view_note_not_found` | Graceful error when the ID does not exist |
+| `test_update_title` | Partial update — title only |
+| `test_update_content_only` | Partial update — content only |
+| `test_update_without_changes` | Warning when no flags are passed to `update` |
+| `test_delete_note` | Successful deletion confirmed with `y` |
+| `test_delete_note_not_found` | Graceful error when the ID does not exist |
+| `test_delete_note_cancelled` | Deletion aborted with `n` |
+| `test_search_title` | Match notes by title keyword |
+| `test_search_content` | Match notes by content keyword |
+| `test_search_tags` | Match notes by tag value |
+| `test_search_no_results` | Graceful message when no notes match |
+
+## Project structure
+
+```
+ink-notes/
+├── ink/
+│   ├── __init__.py      # package entry, exports cli
+│   ├── cli.py           # Click group + init_db
+│   ├── commands.py      # all subcommand implementations
+│   ├── database.py      # SQLAlchemy engine + session
+│   ├── models.py        # Note ORM model
+│   ├── schemas.py       # Pydantic NoteCreate / NoteUpdate
+│   └── ui.py            # Rich display helpers
+├── tests/
+│   ├── conftest.py      # pytest fixtures (CliRunner + test DB)
+│   └── test_commands.py # command tests
+├── requirements.txt
+└── setup.py
+```
+
+## Guidelines
+
+<Accordion title="Code style">
+  Follow [PEP 8](https://peps.python.org/pep-0008/) conventions throughout. The existing codebase uses:
+  - `Mapped[]` typed columns for SQLAlchemy ORM fields (e.g. `Mapped[str]`, `Mapped[list[str] | None]`).
+  - `str | None` union syntax (Python 3.10+ style) rather than `Optional[str]`.
+  - Type annotations on all function signatures.
+
+  Keep new code consistent with these patterns.
+</Accordion>
+
+<Accordion title="Adding a command">
+  1. Add a new `@click.command()` function to `ink/commands.py`. Follow the existing pattern: use `get_db()` as a context manager, validate input with a Pydantic schema if the command writes data, and print output via `console` from `ui.py`.
+  2. Register the command in `ink/cli.py` with `cli.add_command(commands.<your_command>)`.
+  3. Add at least one test function in `tests/test_commands.py` using the `runner` fixture. Cover both the happy path and any expected error states (e.g. not-found, invalid input).
+</Accordion>
+
+<Accordion title="Commit messages">
+  Use [Conventional Commits](https://www.conventionalcommits.org/) style to keep the history readable:
+
+  - `feat:` — a new feature or command
+  - `fix:` — a bug fix
+  - `docs:` — documentation changes only
+  - `test:` — adding or updating tests
+
+  Example: `feat: add ink export command for JSON output`
+</Accordion>
+
+---
+
+<CardGroup cols={2}>
+  <Card title="Data Storage" icon="database" href="/guides/data-storage">
+    Learn how Ink Notes stores your notes in a local SQLite file, including the schema, backup steps, and database initialization.
+  </Card>
+  <Card title="GitHub Repository" icon="github" href="https://github.com/A0X0P/Ink-notes">
+    Browse the source code, open issues, and submit pull requests on GitHub.
+  </Card>
+</CardGroup>

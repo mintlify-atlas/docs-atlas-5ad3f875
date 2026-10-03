@@ -1,0 +1,68 @@
+{
+  "projectType": "cli-tool",
+  "projectName": "Ink Notes",
+  "projectDescription": "A lightweight terminal note-taking application that lets you create, search, update, and delete notes from the command line using a colorful Rich-powered interface backed by SQLite.",
+  "theme": "palm",
+  "primaryColor": "#6C63FF",
+  "lightColor": "#EDE9FF",
+  "darkColor": "#2D2B55",
+  "navigation": {
+    "tabs": [
+      {
+        "tab": "Documentation",
+        "groups": [
+          {
+            "group": "Get Started",
+            "pages": [
+              "introduction",
+              "installation",
+              "quickstart"
+            ]
+          },
+          {
+            "group": "Command Reference",
+            "pages": [
+              "commands/add",
+              "commands/list",
+              "commands/view",
+              "commands/update",
+              "commands/delete",
+              "commands/search"
+            ]
+          },
+          {
+            "group": "Guides",
+            "pages": [
+              "guides/tagging",
+              "guides/data-storage",
+              "guides/contributing"
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  "keyFeatures": [
+    "Create notes with a title, content, and optional comma-separated tags",
+    "List all notes in a Rich-formatted terminal table sorted by newest first",
+    "View a single note by ID in a styled panel with full metadata",
+    "Update a note's title, content, or tags independently",
+    "Delete a note with an interactive confirmation prompt",
+    "Full-text search across title, content, and tags with highlighted matches",
+    "SQLite-backed persistent storage via SQLAlchemy ORM",
+    "Input validation using Pydantic schemas",
+    "Cross-platform support: Windows, macOS, and Linux"
+  ],
+  "publicApiSurface": [
+    "ink add <title> --content <text> --tags <csv>",
+    "ink lst",
+    "ink view <note_id>",
+    "ink update <note_id> --title <text> --content <text> --tags <csv>",
+    "ink delete <note_id>",
+    "ink search <keyword>",
+    "NoteCreate (Pydantic schema)",
+    "NoteUpdate (Pydantic schema)",
+    "Note (SQLAlchemy model)",
+    "cli (Click group entry point)"
+  ]
+}

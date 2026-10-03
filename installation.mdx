@@ -1,0 +1,116 @@
+---
+title: "Install Ink Notes on macOS, Linux, and Windows"
+sidebarTitle: "Installation"
+description: "Install the ink-notes package from PyPI with pip, or build from source. Requirements: Python 3.10+ and pip."
+---
+
+Ink Notes is distributed on [PyPI](https://pypi.org/) as the `ink-notes` package. Once installed, it registers a single `ink` entry-point command that is available globally in your terminal (or within your active virtual environment). The only hard requirement before installation is **Python 3.10 or higher** — all other dependencies are pulled in automatically by pip.
+
+## Requirements
+
+<Note>
+  Before installing Ink Notes, make sure your environment provides:
+  - **Python 3.10 or higher** — check with `python --version` or `python3 --version`.
+  - **pip** — bundled with all standard Python 3.10+ installers; upgrade with `pip install --upgrade pip` if needed.
+</Note>
+
+## Install from PyPI (Recommended)
+
+Installing from PyPI is the fastest way to get started and always pulls the latest stable release.
+
+<Steps>
+  <Step title="Install the package">
+    Run the following command in your terminal:
+
+    ```bash
+    pip install ink-notes
+    ```
+  </Step>
+  <Step title="Verify the installation">
+    Confirm that the `ink` command is available and shows the expected help text:
+
+    ```bash
+    ink --help
+    ```
+
+    You should see output similar to:
+
+    ```
+    Usage: ink [OPTIONS] COMMAND [ARGS]...
+
+      A simple CLI note taking application.
+
+    Options:
+      --help  Show this message and exit.
+
+    Commands:
+      add     Create a new note.
+      delete  Delete a note by ID.
+      lst     List all notes.
+      search  Search for notes by title, content, or tags.
+      update  Update the given note if the note_id exists in the database...
+      view    View a note by ID.
+    ```
+  </Step>
+</Steps>
+
+## Install from Source
+
+If you want to run the latest unreleased code or contribute to the project, you can build and install directly from the GitHub repository.
+
+<Steps>
+  <Step title="Clone the repository">
+    ```bash
+    git clone https://github.com/a0x0p/ink.git
+    ```
+  </Step>
+  <Step title="Enter the project directory">
+    ```bash
+    cd ink-notes
+    ```
+  </Step>
+  <Step title="Install with pip">
+    ```bash
+    pip install .
+    ```
+  </Step>
+</Steps>
+
+## Platform Notes
+
+Ink Notes works on **Windows**, **macOS**, and **Linux**. The SQLite database is created automatically in the working directory the first time any `ink` command is run — no server setup or configuration file is required.
+
+<Tip>
+  It is good practice to install Ink Notes inside a Python virtual environment to avoid conflicts with other packages. Create and activate one before running `pip install ink-notes`:
+
+  ```bash
+  python -m venv .venv && source .venv/bin/activate
+  ```
+
+  On Windows (PowerShell), activate with:
+
+  ```bash
+  .venv\Scripts\Activate.ps1
+  ```
+</Tip>
+
+## Upgrading
+
+To upgrade an existing installation to the latest version from PyPI:
+
+```bash
+pip install --upgrade ink-notes
+```
+
+## Dependencies
+
+Ink Notes declares the following runtime dependencies (versions are minimum requirements):
+
+| Package      | Version  | Purpose                      |
+|--------------|----------|------------------------------|
+| `click`      | `>=8.1`  | CLI framework                |
+| `sqlalchemy` | `>=2.0`  | ORM and SQLite persistence   |
+| `pydantic`   | `>=2.0`  | Input validation             |
+| `rich`       | `>=15.0` | Terminal tables and styling  |
+
+All four packages are installed automatically when you run `pip install ink-notes`.

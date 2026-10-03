@@ -1,0 +1,72 @@
+---
+title: "Ink Notes: A Lightweight CLI Note-Taking App"
+sidebarTitle: "Introduction"
+description: "Ink Notes is a terminal note-taking tool built with Python. Learn about its architecture, key features, and how it stores data with SQLite."
+---
+
+Ink Notes is a lightweight, terminal-first note-taking application built entirely in Python. It solves the everyday problem of needing a fast, keyboard-driven place to capture thoughts, code snippets, and references without ever leaving the terminal. The application is wired together with four focused libraries: [Click](https://click.palletsprojects.com/) for the command-line interface, [SQLAlchemy](https://www.sqlalchemy.org/) as the ORM backed by a zero-configuration SQLite database, [Pydantic](https://docs.pydantic.dev/) for strict input validation before any data touches the database, and [Rich](https://github.com/Textualize/rich) for beautifully formatted tables and panels in the terminal. Ink Notes runs on Windows, macOS, and Linux with a single `ink` entry-point command.
+
+## Key Features
+
+<CardGroup cols={2}>
+  <Card title="Create Notes" icon="pen-to-square">
+    Add a note with a title, free-form content, and an optional comma-separated list of tags. Content can be supplied inline or entered interactively via a prompt.
+  </Card>
+  <Card title="List Notes" icon="list">
+    Display all saved notes in a Rich-rendered table sorted by creation date, showing each note's ID, title, tags, and timestamp at a glance.
+  </Card>
+  <Card title="View by ID" icon="eye">
+    Retrieve a single note by its integer ID and display it in a detailed Rich panel including title, full content, tags, and both created and updated timestamps.
+  </Card>
+  <Card title="Update Fields" icon="pencil">
+    Modify any combination of a note's title, content, or tags by passing only the flags you want to change — untouched fields are left as-is.
+  </Card>
+  <Card title="Delete with Confirmation" icon="trash">
+    Remove a note by ID with a built-in `(y/n)` confirmation prompt, preventing accidental deletions. Pressing any key other than `y` cancels the operation.
+  </Card>
+  <Card title="Full-Text Search" icon="magnifying-glass">
+    Search across note titles, content bodies, and tags with a single keyword. Results are displayed with matching terms highlighted via Rich's search output.
+  </Card>
+</CardGroup>
+
+## Tech Stack
+
+| Component    | Role                              |
+|--------------|-----------------------------------|
+| Click        | CLI framework and command routing |
+| SQLAlchemy   | ORM + SQLite persistence          |
+| Pydantic     | Input validation                  |
+| Rich         | Terminal UI (tables and panels)   |
+
+## Data Model
+
+The `Note` class is a SQLAlchemy declarative model mapped to the `notes` table in a local SQLite database. Its fields are:
+
+| Field        | Type                  | Details                                              |
+|--------------|-----------------------|------------------------------------------------------|
+| `id`         | `Integer` (PK)        | Auto-incrementing primary key, indexed               |
+| `title`      | `String(100)`         | Required; maximum 100 characters                     |
+| `content`    | `Text`                | Required; unrestricted length                        |
+| `created_at` | `DateTime` (UTC)      | Set automatically on insert                          |
+| `updated_at` | `DateTime` (UTC)      | Set on insert, automatically refreshed on every update |
+| `tags`       | `JSON` (nullable)     | Optional list of tag strings                         |
+
+<Note>
+  Tags are stored as a native JSON array in the SQLite database column. This means they are persisted as a JSON-encoded list (e.g., `["python", "tips"]`) and decoded back to a Python `list[str]` by SQLAlchemy's `JSON` type on retrieval — no separate tags table or join is required.
+</Note>
+
+## Pydantic Schemas
+
+Before any data is written to the database, Ink Notes validates it through one of two Pydantic v2 schemas defined in `ink/schemas.py`:
+
+**`NoteCreate`** — used when adding a new note:
+- `title`: required string, minimum 1 character, maximum 100 characters.
+- `content`: required string, minimum 1 character.
+- `tags`: optional `list[str]`; defaults to `None` if not provided.
+
+**`NoteUpdate`** — used when modifying an existing note:
+- `title`: optional string (`None` by default), minimum 1 character, maximum 100 characters if provided.
+- `content`: optional string (`None` by default), minimum 1 character if provided.
+- `tags`: optional `list[str]` (`None` by default).
+
+All fields in `NoteUpdate` are optional so that callers can patch only the fields they need. Fields set to `None` are excluded from the update payload via `model_dump(exclude_none=True)`, ensuring untouched columns in the database are never overwritten.

@@ -1,47 +1,126 @@
 ---
-title: "Quickstart"
-description: "Begin with a guide on the fastest path to a successful outcome"
+title: "Get Started with Ink Notes in 5 Minutes"
+sidebarTitle: "Quickstart"
+description: "Create, list, view, update, search, and delete your first notes with Ink Notes. A hands-on walkthrough of all six CLI commands."
 ---
 
-Describe how someone begins using your product. What is the first thing they need to do? Are there any prerequisites?
-
-A quickstart should take someone from zero to using your product. They'll get a quick win and a sense of what they can accomplish.
-
-## Prerequisites
-
-Before you begin, you must have:
-
-- Requirement one (for example, Node.js 18+, a free account, an API key)
-- Requirement two (for example, a compatible device, a compatible browser, a compatible operating system)
-
-## Get started
+This page walks through every core command with real terminal examples so you can be productive with Ink Notes within minutes. By the end you will have created, listed, viewed, searched, updated, and deleted notes entirely from the terminal — no GUI, no browser, no configuration files required.
 
 <Steps>
-  <Step title="Install">
-    Describe how to install your product or sign up.
+  <Step title="Install Ink Notes">
+    If you have not already installed Ink Notes, grab it from PyPI:
 
     ```bash
-    npm install your-package
+    pip install ink-notes
+    ```
+
+    Once the command completes, the `ink` entry point is available in your terminal. Run `ink --help` at any time to see the list of available commands.
+  </Step>
+
+  <Step title="Create your first note">
+    Use `ink add` followed by a title to create a new note. Pass `--content` to supply the body inline and `--tags` to attach a comma-separated list of tags:
+
+    ```bash
+    ink add "Python tips" --content "Use list comprehensions for clarity" --tags "python,tips"
+    ```
+
+    If you omit `--content`, Ink Notes will prompt you to enter the content interactively before saving. Tags are optional; when provided they are split on commas and stored as a JSON array.
+
+    **Output:**
+    ```
+    ✓ Note 'Python tips' added with ID 1.
     ```
   </Step>
-  <Step title="Configure">
-    Describe any setup or configuration needed before first use.
+
+  <Step title="Add a second note">
+    Create another note so you have something to list and search:
 
     ```bash
-    your-cli init
+    ink add "Terminal workflow" --content "tmux + vim is a powerful combo" --tags "terminal,productivity"
+    ```
+
+    **Output:**
+    ```
+    ✓ Note 'Terminal workflow' added with ID 2.
     ```
   </Step>
-  <Step title="Run it">
-    Show the first thing a user does to see it working.
+
+  <Step title="List all notes">
+    Display every note in the database with:
 
     ```bash
-    your-cli start
+    ink lst
+    ```
+
+    Ink Notes renders a Rich-formatted table with four columns — **ID**, **Title**, **Tags**, and **Created** — sorted by creation date in descending order so your most recent notes appear first.
+  </Step>
+
+  <Step title="View a note by ID">
+    To read the full content of a specific note, pass its ID to `ink view`:
+
+    ```bash
+    ink view 1
+    ```
+
+    Ink Notes renders a Rich panel displaying the note's **title**, **full content**, **created** and **updated** timestamps, and any **tags** attached to it. If the ID does not exist in the database, the command prints an error message instead.
+  </Step>
+
+  <Step title="Search your notes">
+    Find notes that contain a keyword anywhere in their title, content body, or tags:
+
+    ```bash
+    ink search "python"
+    ```
+
+    The search is case-insensitive. Ink Notes scans all three fields — title, content, and tags — and displays every matching note using `show_search_results`, which highlights the matched keyword in the output. Notes that do not match the keyword are excluded.
+  </Step>
+
+  <Step title="Update a note">
+    Modify one or more fields of an existing note by passing only the flags you want to change. Here we add an extra tag to note 1:
+
+    ```bash
+    ink update 1 --tags "python,tips,best-practices"
+    ```
+
+    Any field you do not pass (`--title`, `--content`) remains unchanged in the database.
+
+    **Output:**
+    ```
+    ✓ Note '1' updated!
+    ```
+  </Step>
+
+  <Step title="Delete a note">
+    Remove a note by its ID. Ink Notes will ask for confirmation before deleting:
+
+    ```bash
+    ink delete 2
+    ```
+
+    **Confirmation prompt:**
+    ```
+    Do you want to delete this note? (y/n):
+    ```
+
+    Press `y` to confirm and permanently delete the note:
+    ```
+    ✓ Note deleted.
+    ```
+
+    Press any other key to cancel:
+    ```
+    ⚠ Deletion cancelled.
     ```
   </Step>
 </Steps>
 
-<Tip>
-  Give people a way to get help. This could be a link to a support page, a chat with a customer support agent, or a forum for your product.
+You now know every core command Ink Notes provides. Explore the reference pages below to go deeper into individual commands and tagging patterns.
 
-  Example: Need help? Reach out to us at [support@yourcompany.com](mailto:support@yourcompany.com).
-</Tip>
+<CardGroup cols={2}>
+  <Card title="Command Reference" icon="terminal" href="/commands/add">
+    Full reference for every `ink` command — flags, arguments, validation rules, and error messages.
+  </Card>
+  <Card title="Tagging Guide" icon="tags" href="/guides/tagging">
+    Learn how to organise notes with tags, search by tag keywords, and build a consistent tagging workflow.
+  </Card>
+</CardGroup>

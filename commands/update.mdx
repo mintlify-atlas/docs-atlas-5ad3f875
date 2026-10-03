@@ -1,0 +1,68 @@
+---
+title: "ink update — Edit an Existing Note"
+sidebarTitle: "update"
+description: "ink update <note_id> edits a note's title, content, or tags. Supply only the flags you want to change — unchanged fields are left as-is."
+---
+
+`ink update` lets you modify any combination of a note's title, content, or tags without touching the other fields. Each option is independent — omitting a flag leaves that field unchanged in the database. At least one of `--title`, `--content`, or `--tags` must be provided; if none are supplied, Ink Notes warns that there is nothing to update and exits without making any changes.
+
+## Synopsis
+
+```bash
+ink update <note_id> [OPTIONS]
+```
+
+## Arguments & Options
+
+<ParamField path="note_id" type="integer" required>
+  The integer ID of the note to update. Use `ink lst` to find the ID of the note you want to edit.
+</ParamField>
+
+<ParamField query="--title" type="string">
+  A new title to replace the existing one. Maximum 100 characters, minimum 1 character. If omitted, the current title is preserved.
+</ParamField>
+
+<ParamField query="--content" type="string">
+  New body content to replace the existing content. Minimum 1 character. If omitted, the current content is preserved.
+</ParamField>
+
+<ParamField query="--tags" type="string">
+  A new comma-separated tag list that **replaces** the note's existing tags entirely. If omitted, the current tags are preserved.
+</ParamField>
+
+## Examples
+
+```bash
+# Update only the title
+ink update 1 --title "Python best practices"
+
+# Update content and tags at once
+ink update 1 --content "Prefer f-strings over .format()" --tags "python,style"
+
+# Replace all tags (existing tags are discarded)
+ink update 3 --tags "work,urgent"
+```
+
+## Output
+
+On success:
+
+```
+✓ Note '1' updated!
+```
+
+If no note exists with the given ID:
+
+```
+✗ Note not found.
+```
+
+If the command is run without any flags:
+
+```
+⚠ Nothing to update.
+```
+
+<Warning>
+  The `--tags` option **replaces** the note's entire tag list — it does not append to existing tags. If a note currently has the tags `python, tips` and you run `ink update 1 --tags "style"`, the resulting tags will be `style` only. Pass all desired tags together in a single comma-separated value, e.g. `--tags "python,tips,style"`.
+</Warning>

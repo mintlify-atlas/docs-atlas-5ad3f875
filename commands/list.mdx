@@ -1,0 +1,55 @@
+---
+title: "ink lst — List All Notes"
+sidebarTitle: "lst"
+description: "ink lst displays all notes in a Rich-formatted terminal table sorted by creation date, newest first."
+---
+
+`ink lst` retrieves every note from the database and renders them in a Rich terminal table, ordered newest-first by `created_at`. The table title is **Notes** and uses a blue border. If the database is empty, an error message is displayed instead of a table.
+
+## Synopsis
+
+```bash
+ink lst
+```
+
+This command takes no arguments and no options.
+
+## Output
+
+Results are displayed in a four-column Rich table. Each column is styled as follows:
+
+| Column  | Style        | Format              |
+| ------- | ------------ | ------------------- |
+| ID      | yellow       | Integer             |
+| Title   | bright cyan  | Plain text          |
+| Tags    | magenta      | Comma-separated, or `-` if none |
+| Created | green        | `YYYY-MM-DD`        |
+
+Notes are sorted by `created_at` descending, so the most recently created note appears at the top.
+
+If no notes exist in the database, Ink Notes prints:
+
+```
+✗ Note not found.
+```
+
+## Example
+
+```bash
+ink lst
+```
+
+Sample output:
+
+```
+┏━━━━┳━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━┓
+┃ ID ┃ Title            ┃ Tags           ┃ Created    ┃
+┡━━━━╇━━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━┩
+│  2 │ Terminal workflow│ terminal, prod │ 2025-01-15 │
+│  1 │ Python tips      │ python, tips   │ 2025-01-14 │
+└────┴──────────────────┴────────────────┴────────────┘
+```
+
+<Tip>
+  To read the full content of any note, run `ink view <id>` using the ID shown in the **ID** column.
+</Tip>

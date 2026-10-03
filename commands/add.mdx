@@ -1,0 +1,51 @@
+---
+title: "ink add — Create a New Note"
+sidebarTitle: "add"
+description: "ink add <title> creates a new note with optional content and tags. Content can be entered interactively or via --content flag."
+---
+
+`ink add` creates a new note and saves it to the local SQLite database. The title is a required positional argument; content can be supplied via `--content` or entered interactively at a prompt. Tags are optional and passed as a comma-separated string.
+
+## Synopsis
+
+```bash
+ink add <title> [OPTIONS]
+```
+
+## Arguments & Options
+
+<ParamField path="title" type="string" required>
+  The title of the note. Maximum 100 characters. Must be at least 1 character long — an empty string raises a Pydantic validation error before any database write occurs.
+</ParamField>
+
+<ParamField query="--content" type="string">
+  The body content of the note. Minimum 1 character. If this flag is omitted, Ink Notes will interactively prompt you to enter content before saving.
+</ParamField>
+
+<ParamField query="--tags" type="string">
+  A comma-separated list of tags to attach to the note, e.g. `python,cli,tips`. Tags are parsed by splitting on commas and stripping surrounding whitespace from each value. This field is entirely optional.
+</ParamField>
+
+## Examples
+
+```bash
+# Basic note (content will be prompted interactively)
+ink add "My first note"
+
+# Note with content and tags supplied inline
+ink add "Deploy checklist" --content "Review env vars, run migrations" --tags "devops,checklist"
+```
+
+## Output
+
+On success, Ink Notes prints a confirmation message that includes the note's auto-assigned database ID:
+
+```
+✓ Note 'Deploy checklist' added with ID 3.
+```
+
+If validation fails — for example, if the title is empty or the content is blank — Pydantic raises a `ValidationError` before the database write is attempted and the transaction is rolled back.
+
+<Note>
+  If `--content` is not provided on the command line, Ink Notes will interactively prompt you to enter it. The prompt reads: `Content:`. The note is only saved once valid content is supplied.
+</Note>

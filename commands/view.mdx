@@ -1,0 +1,71 @@
+---
+title: "ink view — Display a Note by ID"
+sidebarTitle: "view"
+description: "ink view <note_id> fetches a note by its integer ID and renders it in a Rich panel with title, content, timestamps, and tags."
+---
+
+`ink view` looks up a note by its integer ID and displays it in a formatted Rich panel showing every field: title, content, creation timestamp, last-updated timestamp, and tags. The panel renders directly in the terminal using Rich's `Panel` component with a blue border.
+
+## Synopsis
+
+```bash
+ink view <note_id>
+```
+
+## Arguments
+
+<ParamField path="note_id" type="integer" required>
+  The unique integer ID of the note to display. IDs are assigned automatically by the database and can be found by running `ink lst`.
+</ParamField>
+
+## Output
+
+The note is rendered inside a Rich panel with the following styling:
+
+- **Border**: blue
+- **Header**: `Note #<id>` in bold yellow
+- **Title field label**: bold bright cyan; value in white
+- **Content field label**: bold bright cyan; value in white
+- **Created field label**: bold green; value formatted as `Weekday, Month DD, YYYY HH:MM:SS` (e.g. `Wednesday, January 15, 2025 14:32:01`)
+- **Updated field label**: bold green; value formatted as `Weekday, Month DD, YYYY HH:MM:SS`
+- **Tags field label**: bold magenta; value is a comma-joined string of tags, or `None` if no tags are set
+
+## Examples
+
+```bash
+ink view 1
+ink view 42
+```
+
+Sample output for `ink view 1`:
+
+```
+╭─────────────────────── Note #1 ───────────────────────╮
+│                                                        │
+│ Title:                                                 │
+│ Python tips                                            │
+│                                                        │
+│ Content:                                               │
+│ Always prefer f-strings over .format() for clarity.   │
+│                                                        │
+│ Created:                                               │
+│ Tuesday, January 14, 2025 09:15:42                     │
+│                                                        │
+│ Updated:                                               │
+│ Tuesday, January 14, 2025 09:15:42                     │
+│                                                        │
+│ Tags:                                                  │
+│ python, tips                                           │
+│                                                        │
+╰────────────────────────────────────────────────────────╯
+```
+
+## Error Handling
+
+If no note exists with the given ID, Ink Notes prints:
+
+```
+✗ Note not found.
+```
+
+No panel is rendered and the process exits cleanly.
