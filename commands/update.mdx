@@ -1,7 +1,7 @@
 ---
-title: "ink update — Edit an Existing Note"
-sidebarTitle: "update"
-description: "ink update <note_id> edits a note's title, content, or tags. Supply only the flags you want to change — unchanged fields are left as-is."
+title: "ink update: Edit the Title, Content, or Tags of a Note"
+sidebarTitle: "Update"
+description: "ink update lets you change a note's title, content, or tags without touching other fields. Omit any flag to leave that field unchanged in the database."
 ---
 
 `ink update` lets you modify any combination of a note's title, content, or tags without touching the other fields. Each option is independent — omitting a flag leaves that field unchanged in the database. At least one of `--title`, `--content`, or `--tags` must be provided; if none are supplied, Ink Notes warns that there is nothing to update and exits without making any changes.

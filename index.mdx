@@ -1,5 +1,5 @@
 ---
-title: "Ink Notes: Terminal Note-Taking for Developers"
+title: "Ink Notes: Terminal Note-Taking CLI App for Developers"
 sidebarTitle: "Home"
 description: "Ink Notes is a lightweight CLI note-taking app built with Click, SQLAlchemy, and Rich. Store, search, and manage notes entirely from your terminal."
 ---
@@ -50,16 +50,22 @@ Ink Notes stores notes in a local SQLite database and exposes them through six f
 
 <Steps>
   <Step title="Install Ink Notes">
+    Run the following command to install Ink Notes from PyPI:
+
     ```bash
     pip install ink-notes
     ```
   </Step>
   <Step title="Create your first note">
+    Use `ink add` with a title, content, and optional tags to save your first note:
+
     ```bash
     ink add "Meeting recap" --content "Discussed Q3 roadmap" --tags "work,meetings"
     ```
   </Step>
   <Step title="List and search your notes">
+    Use `ink lst` to see all notes in a formatted table, then `ink search` to find notes by keyword:
+
     ```bash
     ink lst
     ink search "roadmap"
